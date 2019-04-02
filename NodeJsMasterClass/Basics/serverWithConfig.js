@@ -68,7 +68,6 @@ var server = http.createServer(function(req,res){
         console.log("Returning this response: ",statusCode,payloadString);
 
       });
-
   });
 });
 
@@ -83,6 +82,7 @@ var handlers = {};
 // Sample handler
 handlers.sample = function(data,callback){
     callback(406,{'name':'sample handler'});
+    console.log("data: " + data);
 };
 
 // Not found handler
