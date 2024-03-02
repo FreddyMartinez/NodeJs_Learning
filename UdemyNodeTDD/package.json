@@ -1,0 +1,17 @@
+{
+  "name": "node-tdd",
+  "version": "1.0.0",
+  "description": "Just a learning project applying TDD.",
+  "main": "app.js",
+  "scripts": {
+    "test": "jest --coverage"
+  },
+  "keywords": [
+    "TDD"
+  ],
+  "author": "Freddy",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.3"
+  }
+}
