@@ -1,6 +1,7 @@
 import express from 'express';
 import { SIGNUP_URI } from "../util/constants";
 import { User } from './db/user';
+import { encrypt, generateSalt } from '../util/encrypt';
 
 const app = express();
 
@@ -17,7 +18,9 @@ app.post(SIGNUP_URI, async (req, res) => {
     return res.status(400).send({ message: "Invalid request" });
   }
 
-  await User.create({ username, email, password });
+  const salt = generateSalt();
+  const hashedPassword = await encrypt(password, salt);
+  await User.create({ username, email, password: hashedPassword });
   res.send({ message: "User registered" });
 });
 

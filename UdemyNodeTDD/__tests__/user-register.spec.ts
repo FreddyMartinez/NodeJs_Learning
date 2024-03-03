@@ -66,4 +66,13 @@ describe("UserRegister", () => {
         done();
       });
   });
+
+  it("should save the user's password as a hash", async() => {
+    const response = await request(app).post(SIGNUP_URI).send(user);
+    expect(response.status).toBe(200);
+    const users = await User.findAll({ where: { email: user.email } });
+    expect(users.length).toBe(1);
+    const savedUser = users[0];
+    expect(savedUser.password).not.toBe(user.password);
+  });
 });
