@@ -38,18 +38,15 @@ describe("UserRegister", () => {
     request(app).post(SIGNUP_URI).send(incompleteUser).expect(400, done);
   });
 
-  it("should return 400 Bad Request when email is missing", async () => {
+  it.each([
+    ["username", "Username is required"],
+    ["email", "Email is required"],
+    ["password", "Password is required"],
+  ])("should return validation error when %s is missing", async (field, expectedMessage) => {
     const incompleteUser: Record<string, string> = { ...user };
-    delete incompleteUser.email;
+    delete incompleteUser[field];
     const response = await request(app).post(SIGNUP_URI).send(incompleteUser);
-    expect(response.status).toBe(400);
-  });
-
-  it("should return validation error when email is missing", async () => {
-    const incompleteUser: Record<string, string> = { ...user };
-    delete incompleteUser.email;
-    const response = await request(app).post(SIGNUP_URI).send(incompleteUser);
-    expect(response.body).toMatchObject({ validationErrors: { email: "Email is required" } });
+    expect(response.body).toMatchObject({ validationErrors: { [field]: expectedMessage } });
   });
 
   it("should return a validation error for each missing key", async () => {
