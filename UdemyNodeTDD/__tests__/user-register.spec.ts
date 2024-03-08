@@ -45,6 +45,13 @@ describe("UserRegister", () => {
     expect(response.status).toBe(400);
   });
 
+  it("should return validation error when email is missing", async () => {
+    const incompleteUser: Record<string, string> = { ...user };
+    delete incompleteUser.email;
+    const response = await request(app).post(SIGNUP_URI).send(incompleteUser);
+    expect(response.body).toMatchObject({ validationErrors: { email: "Email is required" } });
+  });
+
   it("should save the user to the database", (done) => {
     postReqValidUser()
       .then(() => {
