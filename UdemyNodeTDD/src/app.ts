@@ -1,13 +1,9 @@
 import express from "express";
-import { SIGNUP_URI } from "../util/constants";
-import { createUser } from "./bll/user";
+import { userRouter } from "./routes/userRouter";
 
 const app = express();
 app.use(express.json());
 
-app.post(SIGNUP_URI, async (req, res) => {
-  const [status, message] = await createUser(req.body);
-  res.status(status).send({ message });
-});
+app.use(userRouter);
 
 export { app };
