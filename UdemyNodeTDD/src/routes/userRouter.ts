@@ -7,9 +7,19 @@ const router = Router();
 router.post(SIGNUP_URI, (req, res, next) => {
   const { username, email, password } = req.body;
 
-  if (!username || !email || !password) {
-    res.status(400).send({ validationErrors: { email: "Email is required" } });
-    return;
+  const validationErrors: Record<string, string> = {};
+  if (!username ) {
+    validationErrors.username = "Username is required";
+  }
+  if (!email) {
+    validationErrors.email = "Email is required";
+  }
+  if (!password) {
+    validationErrors.password = "Password is required";
+  }
+
+  if (Object.keys(validationErrors).length > 0) {
+    return res.status(400).send({ validationErrors });
   }
 
   next();

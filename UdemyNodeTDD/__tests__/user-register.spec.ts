@@ -52,6 +52,17 @@ describe("UserRegister", () => {
     expect(response.body).toMatchObject({ validationErrors: { email: "Email is required" } });
   });
 
+  it("should return a validation error for each missing key", async () => {
+    const incompleteUser = { };
+    const response = await request(app).post(SIGNUP_URI).send(incompleteUser);
+    const errors = response.body.validationErrors;
+    const keys = Object.keys(errors);
+    expect(keys.length).toBe(3);
+    expect(keys).toContain("username");
+    expect(keys).toContain("email");
+    expect(keys).toContain("password");
+  });
+
   it("should save the user to the database", (done) => {
     postReqValidUser()
       .then(() => {
