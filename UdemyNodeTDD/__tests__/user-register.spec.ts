@@ -79,4 +79,11 @@ describe("UserRegister", () => {
     const savedUser = users[0];
     expect(savedUser.password).not.toBe(user.password);
   });
+
+  it("should return 400 Bad Request when email is not a valid email", async () => {
+    const invalidEmail = { ...user, email: "invalid-email" };
+    const response = await request(app).post(SIGNUP_URI).send(invalidEmail);
+    expect(response.status).toBe(400);
+    expect(response.body).toMatchObject({ validationErrors: { email: "Email is invalid" } });
+  });
 });
