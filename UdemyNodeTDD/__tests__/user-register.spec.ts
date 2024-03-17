@@ -44,7 +44,7 @@ describe("UserRegister", () => {
   it.each([
     ["username", USER_MESSAGES.USERNAME_REQUIRED],
     ["email", USER_MESSAGES.EMAIL_REQUIRED],
-    ["password", "Password is required"],
+    ["password", USER_MESSAGES.PASSWORD_REQUIRED],
   ])("should return validation error when %s is missing", async (field, expectedMessage) => {
     const incompleteUser: Record<string, string> = { ...user };
     delete incompleteUser[field];
@@ -63,17 +63,22 @@ describe("UserRegister", () => {
     expect(keys).toContain("password");
   });
 
-  it("should return validation error when username is less than 4 characters", async () => {
-    const invalidUser = { ...user, username: "abc" };
-    const response = await userPostRequest(invalidUser);
-    expect(response.body).toMatchObject({ validationErrors: { username: USER_MESSAGES.USERNAME_MIN_LENGTH } });
-  });
-  
-  it("should return validation error when username is more than 32 characters", async () => {
-    const invalidUser = { ...user, username: "a".repeat(33) };
-    const response = await userPostRequest(invalidUser);
-    expect(response.body).toMatchObject({ validationErrors: { username: USER_MESSAGES.USERNAME_MAX_LENGTH } });
-  });
+  it.each`
+    field         | value              | error                            | expectedMessage
+    ${"username"} | ${"abc"}           | ${"has less than 4 characters"}  | ${USER_MESSAGES.USERNAME_MIN_LENGTH}
+    ${"username"} | ${"a".repeat(33)}  | ${"has more than 32 characters"} | ${USER_MESSAGES.USERNAME_MAX_LENGTH}
+    ${"email"}    | ${"invalid-email"} | ${"is not a valid email"}        | ${USER_MESSAGES.EMAIL_NOT_VALID}
+  `(
+    "should return validation error when $field $error",
+    async ({ field, value, expectedMessage }) => {
+      const invalidUser = { ...user, [field]: value };
+      const response = await request(app).post(SIGNUP_URI).send(invalidUser);
+      expect(response.status).toBe(400);
+      expect(response.body).toMatchObject({
+        validationErrors: { [field]: expectedMessage },
+      });
+    }
+  );
 
   it("should save the user to the database", (done) => {
     postReqValidUser()
@@ -95,10 +100,4 @@ describe("UserRegister", () => {
     expect(savedUser.password).not.toBe(user.password);
   });
 
-  it("should return 400 Bad Request when email is not a valid email", async () => {
-    const invalidEmail = { ...user, email: "invalid-email" };
-    const response = await request(app).post(SIGNUP_URI).send(invalidEmail);
-    expect(response.status).toBe(400);
-    expect(response.body).toMatchObject({ validationErrors: { email: "Email is invalid" } });
-  });
 });

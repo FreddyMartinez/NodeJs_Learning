@@ -21,7 +21,7 @@ router.post(
     .bail()
     .isEmail()
     .withMessage(USER_MESSAGES.EMAIL_NOT_VALID),
-  check("password").notEmpty().withMessage("Password is required"),
+  check("password").notEmpty().withMessage(USER_MESSAGES.PASSWORD_REQUIRED),
   async (req, res) => {
     const errors = validationResult(req);
 
