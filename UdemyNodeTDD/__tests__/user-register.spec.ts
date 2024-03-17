@@ -1,6 +1,6 @@
 import request from "supertest";
 import { app } from "../src/app";
-import { SIGNUP_URI } from "../util/constants";
+import { SIGNUP_URI, USER_MESSAGES } from "../util/constants";
 import { User } from "../src/db/user";
 import { dbInstance } from "../src/db/dbInstance";
 
@@ -9,6 +9,9 @@ const user = {
   email: "user@email.com",
   password: "password",
 };
+
+const userPostRequest = (payload: Record<string, unknown>) =>
+  request(app).post(SIGNUP_URI).send(payload);
 
 beforeAll(() => {
   return dbInstance.sync();
@@ -19,7 +22,7 @@ beforeEach(() => {
 });
 
 describe("UserRegister", () => {
-  const postReqValidUser = () => request(app).post(SIGNUP_URI).send(user);
+  const postReqValidUser = () => userPostRequest(user);
 
   it("should return 200 Ok when signup request is valid", (done) => {
     postReqValidUser().expect(200, done);
@@ -39,8 +42,8 @@ describe("UserRegister", () => {
   });
 
   it.each([
-    ["username", "Username is required"],
-    ["email", "Email is required"],
+    ["username", USER_MESSAGES.USERNAME_REQUIRED],
+    ["email", USER_MESSAGES.EMAIL_REQUIRED],
     ["password", "Password is required"],
   ])("should return validation error when %s is missing", async (field, expectedMessage) => {
     const incompleteUser: Record<string, string> = { ...user };
@@ -51,13 +54,25 @@ describe("UserRegister", () => {
 
   it("should return a validation error for each missing key", async () => {
     const incompleteUser = { };
-    const response = await request(app).post(SIGNUP_URI).send(incompleteUser);
+    const response = await userPostRequest(incompleteUser);
     const errors = response.body.validationErrors;
     const keys = Object.keys(errors);
     expect(keys.length).toBe(3);
     expect(keys).toContain("username");
     expect(keys).toContain("email");
     expect(keys).toContain("password");
+  });
+
+  it("should return validation error when username is less than 4 characters", async () => {
+    const invalidUser = { ...user, username: "abc" };
+    const response = await userPostRequest(invalidUser);
+    expect(response.body).toMatchObject({ validationErrors: { username: USER_MESSAGES.USERNAME_MIN_LENGTH } });
+  });
+  
+  it("should return validation error when username is more than 32 characters", async () => {
+    const invalidUser = { ...user, username: "a".repeat(33) };
+    const response = await userPostRequest(invalidUser);
+    expect(response.body).toMatchObject({ validationErrors: { username: USER_MESSAGES.USERNAME_MAX_LENGTH } });
   });
 
   it("should save the user to the database", (done) => {

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { SIGNUP_URI } from "../../util/constants";
+import { SIGNUP_URI, USER_MESSAGES } from "../../util/constants";
 import { createUser } from "../bll/user";
 import { check, validationResult } from "express-validator";
 
@@ -7,13 +7,20 @@ const router = Router();
 
 router.post(
   SIGNUP_URI,
-  check("username").notEmpty().withMessage("Username is required"),
+  check("username")
+    .notEmpty()
+    .withMessage(USER_MESSAGES.USERNAME_REQUIRED)
+    .bail()
+    .isLength({ min: 4 })
+    .withMessage(USER_MESSAGES.USERNAME_MIN_LENGTH)
+    .isLength({ max: 32 })
+    .withMessage(USER_MESSAGES.USERNAME_MAX_LENGTH),
   check("email")
     .notEmpty()
-    .withMessage("Email is required")
+    .withMessage(USER_MESSAGES.EMAIL_REQUIRED)
     .bail()
     .isEmail()
-    .withMessage("Email is invalid"),
+    .withMessage(USER_MESSAGES.EMAIL_NOT_VALID),
   check("password").notEmpty().withMessage("Password is required"),
   async (req, res) => {
     const errors = validationResult(req);
