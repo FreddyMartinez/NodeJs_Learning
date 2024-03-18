@@ -21,7 +21,12 @@ router.post(
     .bail()
     .isEmail()
     .withMessage(USER_MESSAGES.EMAIL_NOT_VALID),
-  check("password").notEmpty().withMessage(USER_MESSAGES.PASSWORD_REQUIRED),
+  check("password")
+    .notEmpty()
+    .withMessage(USER_MESSAGES.PASSWORD_REQUIRED)
+    .bail()
+    .isLength({ min: 5 })
+    .withMessage(USER_MESSAGES.PASSWORD_MIN_LENGTH),
   async (req, res) => {
     const errors = validationResult(req);
 

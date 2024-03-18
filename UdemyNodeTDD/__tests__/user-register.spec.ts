@@ -68,6 +68,7 @@ describe("UserRegister", () => {
     ${"username"} | ${"abc"}           | ${"has less than 4 characters"}  | ${USER_MESSAGES.USERNAME_MIN_LENGTH}
     ${"username"} | ${"a".repeat(33)}  | ${"has more than 32 characters"} | ${USER_MESSAGES.USERNAME_MAX_LENGTH}
     ${"email"}    | ${"invalid-email"} | ${"is not a valid email"}        | ${USER_MESSAGES.EMAIL_NOT_VALID}
+    ${"password"} | ${"Pass"}          | ${"has less than 5 characters "} | ${USER_MESSAGES.PASSWORD_MIN_LENGTH}
   `(
     "should return validation error when $field $error",
     async ({ field, value, expectedMessage }) => {

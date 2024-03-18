@@ -9,4 +9,5 @@ export const USER_MESSAGES = {
   EMAIL_REQUIRED: "Email is required",
   EMAIL_NOT_VALID: "Email is invalid",
   PASSWORD_REQUIRED: "Password is required",
+  PASSWORD_MIN_LENGTH: "Password must have at least 5 characters",
 };
