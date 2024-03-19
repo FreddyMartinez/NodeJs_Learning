@@ -1,4 +1,3 @@
-import { USER_MESSAGES } from "../../util/constants";
 import { encrypt, generateSalt } from "../../util/encrypt";
 import { User } from "../db/user";
 import { EmailError } from "../../util/errors";
@@ -13,6 +12,6 @@ export async function createUser(
     await User.create({ username, email, password: hashedPassword });
     return "User registered";
   } catch (error) {
-    throw new EmailError(USER_MESSAGES.EMAIL_IN_USE);
+    throw new EmailError("USER_MESSAGES.EMAIL_IN_USE");
   }
 }

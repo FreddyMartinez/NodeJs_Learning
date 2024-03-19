@@ -1,8 +1,10 @@
 import request from "supertest";
 import { app } from "../src/app";
-import { SIGNUP_URI, USER_MESSAGES } from "../util/constants";
+import { SIGNUP_URI } from "../util/constants";
 import { User } from "../src/db/user";
 import { dbInstance } from "../src/db/dbInstance";
+import { USER_MESSAGES } from "../locales/en/translation.json";
+import es from "../locales/es/translation.json";
 
 const user = {
   username: "user",
@@ -10,8 +12,10 @@ const user = {
   password: "Password1",
 };
 
-const userPostRequest = (payload: Record<string, unknown>) =>
-  request(app).post(SIGNUP_URI).send(payload);
+const userPostReqWithLang = (lang: string) => (payload: Record<string, unknown>) =>
+request(app).post(SIGNUP_URI).set("Accept-Language", lang).send(payload); 
+
+const userPostRequest = userPostReqWithLang("");
 
 beforeAll(() => {
   return dbInstance.sync();
@@ -112,4 +116,29 @@ describe("UserRegister", () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({ validationErrors: { email: USER_MESSAGES.EMAIL_IN_USE } });
   });
+});
+
+describe("UserRegister with different languages", () => {
+  const userPostRequestSpanish = userPostReqWithLang("es");
+
+  it.each`
+    field         | value              | error                              | expectedMessage
+    ${"username"} | ${"abc"}           | ${"has less than 4 characters"}    | ${es.USER_MESSAGES.USERNAME_MIN_LENGTH}
+    ${"username"} | ${"a".repeat(33)}  | ${"has more than 32 characters"}   | ${es.USER_MESSAGES.USERNAME_MAX_LENGTH}
+    ${"email"}    | ${"invalid-email"} | ${"is not a valid email"}          | ${es.USER_MESSAGES.EMAIL_NOT_VALID}
+    ${"password"} | ${"Pass"}          | ${"has less than 5 characters"}    | ${es.USER_MESSAGES.PASSWORD_MIN_LENGTH}
+    ${"password"} | ${"onlylower1"}    | ${"doesn't have upercase values"}  | ${es.USER_MESSAGES.PASSWORD_FORMAT}
+    ${"password"} | ${"ONLYUPPER2"}    | ${"doesn't have lowercase values"} | ${es.USER_MESSAGES.PASSWORD_FORMAT}
+    ${"password"} | ${"noNumber"}      | ${"doesn't have a number"}         | ${es.USER_MESSAGES.PASSWORD_FORMAT}
+  `(
+    "should return validation error when $field $error",
+    async ({ field, value, expectedMessage }) => {
+      const invalidUser = { ...user, [field]: value };
+      const response = await userPostRequestSpanish(invalidUser);
+      expect(response.status).toBe(400);
+      expect(response.body).toMatchObject({
+        validationErrors: { [field]: expectedMessage },
+      });
+    }
+  );
 });

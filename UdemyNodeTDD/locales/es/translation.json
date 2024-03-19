@@ -1,0 +1,13 @@
+{
+  "USER_MESSAGES": {
+    "USERNAME_REQUIRED": "Username es requerido",
+    "USERNAME_MIN_LENGTH": "El nombre de usuario debe tener al menos 4 caracteres",
+    "USERNAME_MAX_LENGTH": "El nombre de usuario debe tener máximo 32 caracteres",
+    "EMAIL_REQUIRED": "Email es requerido",
+    "EMAIL_NOT_VALID": "Email es inválido",
+    "EMAIL_IN_USE": "Email ya está siendo usado",
+    "PASSWORD_REQUIRED": "La contraseña es requireda",
+    "PASSWORD_MIN_LENGTH": "La contraseña debe tener al menos 5 caracteres",
+    "PASSWORD_FORMAT": "La contraseña debe tener al menos 1 minúscula, 1 mayúscula y 1 número"
+  }
+}
