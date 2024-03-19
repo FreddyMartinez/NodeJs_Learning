@@ -10,4 +10,5 @@ export const USER_MESSAGES = {
   EMAIL_NOT_VALID: "Email is invalid",
   PASSWORD_REQUIRED: "Password is required",
   PASSWORD_MIN_LENGTH: "Password must have at least 5 characters",
+  PASSWORD_FORMAT: "Password must have at least 1 lowercase, 1 uppercase and 1 number",
 };

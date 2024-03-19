@@ -26,7 +26,10 @@ router.post(
     .withMessage(USER_MESSAGES.PASSWORD_REQUIRED)
     .bail()
     .isLength({ min: 5 })
-    .withMessage(USER_MESSAGES.PASSWORD_MIN_LENGTH),
+    .withMessage(USER_MESSAGES.PASSWORD_MIN_LENGTH)
+    .bail()
+    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).*$/)
+    .withMessage(USER_MESSAGES.PASSWORD_FORMAT),
   async (req, res) => {
     const errors = validationResult(req);
 

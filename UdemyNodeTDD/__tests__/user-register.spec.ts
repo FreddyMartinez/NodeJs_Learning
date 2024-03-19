@@ -7,7 +7,7 @@ import { dbInstance } from "../src/db/dbInstance";
 const user = {
   username: "user",
   email: "user@email.com",
-  password: "password",
+  password: "Password1",
 };
 
 const userPostRequest = (payload: Record<string, unknown>) =>
@@ -64,11 +64,14 @@ describe("UserRegister", () => {
   });
 
   it.each`
-    field         | value              | error                            | expectedMessage
-    ${"username"} | ${"abc"}           | ${"has less than 4 characters"}  | ${USER_MESSAGES.USERNAME_MIN_LENGTH}
-    ${"username"} | ${"a".repeat(33)}  | ${"has more than 32 characters"} | ${USER_MESSAGES.USERNAME_MAX_LENGTH}
-    ${"email"}    | ${"invalid-email"} | ${"is not a valid email"}        | ${USER_MESSAGES.EMAIL_NOT_VALID}
-    ${"password"} | ${"Pass"}          | ${"has less than 5 characters "} | ${USER_MESSAGES.PASSWORD_MIN_LENGTH}
+    field         | value              | error                              | expectedMessage
+    ${"username"} | ${"abc"}           | ${"has less than 4 characters"}    | ${USER_MESSAGES.USERNAME_MIN_LENGTH}
+    ${"username"} | ${"a".repeat(33)}  | ${"has more than 32 characters"}   | ${USER_MESSAGES.USERNAME_MAX_LENGTH}
+    ${"email"}    | ${"invalid-email"} | ${"is not a valid email"}          | ${USER_MESSAGES.EMAIL_NOT_VALID}
+    ${"password"} | ${"Pass"}          | ${"has less than 5 characters"}    | ${USER_MESSAGES.PASSWORD_MIN_LENGTH}
+    ${"password"} | ${"onlylower1"}    | ${"doesn't have upercase values"}  | ${USER_MESSAGES.PASSWORD_FORMAT}
+    ${"password"} | ${"ONLYUPPER2"}    | ${"doesn't have lowercase values"} | ${USER_MESSAGES.PASSWORD_FORMAT}
+    ${"password"} | ${"noNumber"}      | ${"doesn't have a number"}         | ${USER_MESSAGES.PASSWORD_FORMAT}
   `(
     "should return validation error when $field $error",
     async ({ field, value, expectedMessage }) => {
