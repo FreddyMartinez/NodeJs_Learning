@@ -104,4 +104,12 @@ describe("UserRegister", () => {
     expect(savedUser.password).not.toBe(user.password);
   });
 
+  it("should return Email in use when email is already in the database", async () => {
+    const res = await postReqValidUser();
+    expect(res.status).toBe(200);
+
+    const response = await postReqValidUser();
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ validationErrors: { email: USER_MESSAGES.EMAIL_IN_USE } });
+  });
 });

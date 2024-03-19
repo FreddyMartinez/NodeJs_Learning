@@ -2,6 +2,7 @@ import { Router } from "express";
 import { SIGNUP_URI, USER_MESSAGES } from "../../util/constants";
 import { createUser } from "../bll/user";
 import { check, validationResult } from "express-validator";
+import { EmailError } from "../../util/errors";
 
 const router = Router();
 
@@ -43,8 +44,14 @@ router.post(
       return res.status(400).send({ validationErrors });
     }
 
-    const [status, message] = await createUser(req.body);
-    res.status(status).send({ message });
+    try {
+      const message = await createUser(req.body);
+      res.status(200).send({ message });
+    } catch (error) {
+      if(error instanceof EmailError) {
+        res.status(400).send({ validationErrors: { email: error.message } });
+      }
+    }
   }
 );
 
