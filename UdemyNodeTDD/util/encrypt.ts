@@ -1,7 +1,7 @@
 import { pbkdf2, randomBytes } from 'crypto';
 
 export function generateSalt(): string {
-  return randomBytes(16).toString('hex');
+  return generateToken(16);
 }
 
 export function encrypt(password: string, salt: string): Promise<string> {
@@ -18,4 +18,8 @@ export function encrypt(password: string, salt: string): Promise<string> {
 
 export function validatePassword(password: string, salt: string, hash: string): Promise<boolean> {
   return encrypt(password, salt).then((derivedKey) => derivedKey === hash);
+}
+
+export function generateToken(length: number): string {
+  return randomBytes(length).toString('hex');
 }

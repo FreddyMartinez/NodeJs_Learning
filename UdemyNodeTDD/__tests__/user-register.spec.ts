@@ -119,6 +119,13 @@ describe("UserRegister", () => {
     const savedUser = users[0];
     expect(savedUser.active).toBe(false);
   });
+
+  it("should create an activation token for user", async () => {
+    await postReqValidUser();
+    const users = await User.findAll();
+    const savedUser = users[0];
+    expect(savedUser.activationToken).toBeTruthy();
+  });
 });
 
 describe("UserRegister with different languages", () => {

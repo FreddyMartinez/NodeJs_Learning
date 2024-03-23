@@ -1,4 +1,4 @@
-import { encrypt, generateSalt } from "../../util/encrypt";
+import { encrypt, generateSalt, generateToken } from "../../util/encrypt";
 import { User } from "../db/user";
 
 export async function createUser(
@@ -7,7 +7,13 @@ export async function createUser(
   const { username, email, password } = body;
   const salt = generateSalt();
   const hashedPassword = await encrypt(password, salt);
-  await User.create({ username, email, password: hashedPassword });
+  const activationToken = generateToken(16);
+  await User.create({
+    username,
+    email,
+    password: hashedPassword,
+    activationToken,
+  });
   return "USER_MESSAGES.USER_REGISTERED";
 }
 
