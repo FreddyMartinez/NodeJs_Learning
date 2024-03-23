@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { SIGNUP_URI } from "../../util/constants";
-import { createUser } from "../bll/user";
+import { createUser, getUserByEmail } from "../bll/user";
 import { check, validationResult } from "express-validator";
 import { EmailError } from "../../util/errors";
 
@@ -21,7 +21,14 @@ router.post(
     .withMessage("USER_MESSAGES.EMAIL_REQUIRED")
     .bail()
     .isEmail()
-    .withMessage("USER_MESSAGES.EMAIL_NOT_VALID"),
+    .withMessage("USER_MESSAGES.EMAIL_NOT_VALID")
+    .bail()
+    .custom(async (email) => {
+      const user = await getUserByEmail(email);
+      if (user) {
+        throw new EmailError("USER_MESSAGES.EMAIL_IN_USE");
+      }
+    }),
   check("password")
     .notEmpty()
     .withMessage("USER_MESSAGES.PASSWORD_REQUIRED")
@@ -44,14 +51,8 @@ router.post(
       return res.status(400).send({ validationErrors });
     }
 
-    try {
-      const message = await createUser(req.body);
-      res.status(200).send({ message });
-    } catch (error) {
-      if(error instanceof EmailError) {
-        res.status(400).send({ validationErrors: { email: req.t(error.message) } });
-      }
-    }
+    const message = await createUser(req.body);
+    res.status(200).send({ message: req.t(message) });
   }
 );
 

@@ -1,5 +1,6 @@
 {
   "USER_MESSAGES": {
+    "USER_REGISTERED": "Usuario registrado",
     "USERNAME_REQUIRED": "Username es requerido",
     "USERNAME_MIN_LENGTH": "El nombre de usuario debe tener al menos 4 caracteres",
     "USERNAME_MAX_LENGTH": "El nombre de usuario debe tener máximo 32 caracteres",

@@ -1,8 +1,8 @@
 interface Config {
-  name: "testdb";
-  username: "dbuser";
-  password: "dbpassword";
+  name: string;
+  username: string;
+  password: string;
   dialect: "sqlite";
-  storage: "./database.sqlite";
-  logging: false;
+  storage: string;
+  logging: boolean;
 }

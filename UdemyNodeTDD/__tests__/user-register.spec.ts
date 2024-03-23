@@ -28,15 +28,10 @@ beforeEach(() => {
 describe("UserRegister", () => {
   const postReqValidUser = () => userPostRequest(user);
 
-  it("should return 200 Ok when signup request is valid", (done) => {
-    postReqValidUser().expect(200, done);
-  });
-
-  it("should return success message when signup request is valid", (done) => {
-    postReqValidUser().then((response) => {
-      expect(response.body).toEqual({ message: "User registered" });
-      done();
-    });
+  it("should return status 200 and success message when signup request is valid", async () => {
+    const response = await postReqValidUser();
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ message: USER_MESSAGES.USER_REGISTERED });
   });
 
   it("should return 400 Bad Request when username is missing", (done) => {
@@ -120,6 +115,12 @@ describe("UserRegister", () => {
 
 describe("UserRegister with different languages", () => {
   const userPostRequestSpanish = userPostReqWithLang("es");
+
+  it("should return status 200 and success message when signup request is valid", async () => {
+    const response = await userPostRequestSpanish(user);
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ message: es.USER_MESSAGES.USER_REGISTERED });
+  });
 
   it.each`
     field         | value              | error                              | expectedMessage
