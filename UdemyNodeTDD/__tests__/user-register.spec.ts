@@ -111,6 +111,14 @@ describe("UserRegister", () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({ validationErrors: { email: USER_MESSAGES.EMAIL_IN_USE } });
   });
+
+  it("should create user in 'inactive' mode", async () => {
+    const activeUser = { ...user, active: true };
+    await userPostRequest(activeUser);
+    const users = await User.findAll();
+    const savedUser = users[0];
+    expect(savedUser.active).toBe(false);
+  });
 });
 
 describe("UserRegister with different languages", () => {
