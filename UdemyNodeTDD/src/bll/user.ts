@@ -1,4 +1,6 @@
 import { encrypt, generateSalt, generateToken } from "../../util/encrypt";
+import { EmailError } from "../../util/errors";
+import { dbInstance } from "../db/dbInstance";
 import { User } from "../db/user";
 import { sendEmail } from "./email";
 
@@ -9,13 +11,22 @@ export async function createUser(
   const salt = generateSalt();
   const hashedPassword = await encrypt(password, salt);
   const activationToken = generateToken(16);
+  const transaction = await dbInstance.transaction();
   await User.create({
     username,
     email,
     password: hashedPassword,
     activationToken,
+  }, {
+    transaction
   });
-  await sendEmail(email, activationToken);
+  try {
+    await sendEmail(email, activationToken);
+    await transaction.commit();
+  } catch (error) {
+    await transaction.rollback();
+    throw new EmailError("USER_MESSAGES.ERROR_SENDING_EMAIL");
+  }
   return "USER_MESSAGES.USER_REGISTERED";
 }
 

@@ -6,6 +6,7 @@ import { dbInstance } from "../src/db/dbInstance";
 import { USER_MESSAGES } from "../locales/en/translation.json";
 import es from "../locales/es/translation.json";
 import nodemailerStub from "nodemailer-stub";
+import * as email from "../src/bll/email";
 
 const user = {
   username: "user",
@@ -171,5 +172,18 @@ describe("SignUp should send email", () => {
     const users = await User.findAll();
     const savedUser = users[0];
     expect(lastMail.content).toContain(savedUser.activationToken);
+  });
+
+  it("should return 502 Bad Gateway error when sendign email fails", async () => {
+    const mockSendEmail = jest
+      .spyOn(email, "sendEmail")
+      .mockRejectedValue({ message: "Failed to send email" });
+
+    const response = await postReqValidUser();
+    expect(response.status).toBe(502);
+    expect(response.body).toEqual({ message: USER_MESSAGES.ERROR_SENDING_EMAIL });
+    const users = User.findAll();
+    expect((await users).length).toBe(0);
+    mockSendEmail.mockRestore();
   });
 });

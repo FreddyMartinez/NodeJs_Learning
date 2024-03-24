@@ -9,6 +9,7 @@
     "EMAIL_IN_USE": "Email ya está siendo usado",
     "PASSWORD_REQUIRED": "La contraseña es requireda",
     "PASSWORD_MIN_LENGTH": "La contraseña debe tener al menos 5 caracteres",
-    "PASSWORD_FORMAT": "La contraseña debe tener al menos 1 minúscula, 1 mayúscula y 1 número"
+    "PASSWORD_FORMAT": "La contraseña debe tener al menos 1 minúscula, 1 mayúscula y 1 número",
+    "ERROR_SENDING_EMAIL": "Error enviando email de activación"
   }
 }

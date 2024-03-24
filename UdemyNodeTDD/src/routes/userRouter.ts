@@ -51,8 +51,14 @@ router.post(
       return res.status(400).send({ validationErrors });
     }
 
-    const message = await createUser(req.body);
-    res.status(200).send({ message: req.t(message) });
+    try {
+      const message = await createUser(req.body);
+      res.status(200).send({ message: req.t(message) });
+    } catch (error) {
+      if (error instanceof EmailError) {
+        return res.status(502).send({ message: req.t(error.message) });
+      }
+    }
   }
 );
 
