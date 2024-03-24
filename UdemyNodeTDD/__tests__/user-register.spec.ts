@@ -5,6 +5,7 @@ import { User } from "../src/db/user";
 import { dbInstance } from "../src/db/dbInstance";
 import { USER_MESSAGES } from "../locales/en/translation.json";
 import es from "../locales/es/translation.json";
+import nodemailerStub from "nodemailer-stub";
 
 const user = {
   username: "user",
@@ -111,21 +112,6 @@ describe("UserRegister", () => {
     expect(response.status).toBe(400);
     expect(response.body).toEqual({ validationErrors: { email: USER_MESSAGES.EMAIL_IN_USE } });
   });
-
-  it("should create user in 'inactive' mode", async () => {
-    const activeUser = { ...user, active: true };
-    await userPostRequest(activeUser);
-    const users = await User.findAll();
-    const savedUser = users[0];
-    expect(savedUser.active).toBe(false);
-  });
-
-  it("should create an activation token for user", async () => {
-    await postReqValidUser();
-    const users = await User.findAll();
-    const savedUser = users[0];
-    expect(savedUser.activationToken).toBeTruthy();
-  });
 });
 
 describe("UserRegister with different languages", () => {
@@ -157,4 +143,33 @@ describe("UserRegister with different languages", () => {
       });
     }
   );
+});
+
+describe("SignUp should send email", () => {
+  const postReqValidUser = () => userPostRequest(user);
+  
+  it("should create user in 'inactive' mode", async () => {
+    const activeUser = { ...user, active: true };
+    await userPostRequest(activeUser);
+    const users = await User.findAll();
+    const savedUser = users[0];
+    expect(savedUser.active).toBe(false);
+  });
+
+  it("should create an activation token for user", async () => {
+    await postReqValidUser();
+    const users = await User.findAll();
+    const savedUser = users[0];
+    expect(savedUser.activationToken).toBeTruthy();
+  });
+
+  it("should send an email with activation link", async () => {
+    await postReqValidUser();
+    const lastMail = nodemailerStub.interactsWithMail.lastMail();
+    expect(typeof lastMail.to).toBe("object");
+    expect(lastMail.to).toContain(user.email);
+    const users = await User.findAll();
+    const savedUser = users[0];
+    expect(lastMail.content).toContain(savedUser.activationToken);
+  });
 });

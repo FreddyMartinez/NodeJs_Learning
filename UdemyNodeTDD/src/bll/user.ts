@@ -1,5 +1,6 @@
 import { encrypt, generateSalt, generateToken } from "../../util/encrypt";
 import { User } from "../db/user";
+import { sendEmail } from "./email";
 
 export async function createUser(
   body: UserBase
@@ -14,6 +15,7 @@ export async function createUser(
     password: hashedPassword,
     activationToken,
   });
+  await sendEmail(email, activationToken);
   return "USER_MESSAGES.USER_REGISTERED";
 }
 
