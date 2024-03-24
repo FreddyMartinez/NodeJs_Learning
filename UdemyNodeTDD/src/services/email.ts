@@ -1,8 +1,14 @@
 import { createTransport } from "nodemailer";
-import nodemailerStub from "nodemailer-stub";
+
 
 export async function sendEmail(email: string, token: string) {
-  const transport = createTransport(nodemailerStub.stubTransport);
+  const transport = createTransport({
+    host: "localhost",
+    port: 8081,
+    tls: {
+      rejectUnauthorized: false,
+    },
+  });
   await transport.sendMail({
     from: "Test App <info@test-app-com>",
     to: email,

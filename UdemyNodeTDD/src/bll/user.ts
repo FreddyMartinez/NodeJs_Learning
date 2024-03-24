@@ -2,7 +2,7 @@ import { encrypt, generateSalt, generateToken } from "../../util/encrypt";
 import { EmailError } from "../../util/errors";
 import { dbInstance } from "../db/dbInstance";
 import { User } from "../db/user";
-import { sendEmail } from "./email";
+import { sendEmail } from "../services/email";
 
 export async function createUser(
   body: UserBase

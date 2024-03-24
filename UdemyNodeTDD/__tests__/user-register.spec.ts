@@ -5,8 +5,8 @@ import { User } from "../src/db/user";
 import { dbInstance } from "../src/db/dbInstance";
 import { USER_MESSAGES } from "../locales/en/translation.json";
 import es from "../locales/es/translation.json";
-import nodemailerStub from "nodemailer-stub";
-import * as email from "../src/bll/email";
+import * as email from "../src/services/email";
+import { SMTPServer } from "smtp-server";
 
 const user = {
   username: "user",
@@ -19,12 +19,43 @@ request(app).post(SIGNUP_URI).set("Accept-Language", lang).send(payload);
 
 const userPostRequest = userPostReqWithLang("");
 
-beforeAll(() => {
-  return dbInstance.sync();
+let lastMail: string = "";
+let server: SMTPServer;
+
+const createServer = async () => {
+  server = new SMTPServer({
+    authOptional: true,
+    onData(stream, session, callback) {
+      let mailBody: string;
+      stream.on("data", (data) => {
+        mailBody += data.toString();
+      });
+
+      stream.on("end", () => {
+        lastMail = mailBody;
+        callback();
+      });
+    },
+  });
+
+  return new Promise<void>((resolve) => {
+    server.listen(8081, () => {
+      resolve();
+    });
+  });
+};
+
+beforeAll(async () => {
+  await createServer();
+  await dbInstance.sync();
 });
 
 beforeEach(() => {
   return User.destroy({ truncate: true });
+});
+
+afterAll(() => {
+  server.close();
 });
 
 describe("UserRegister", () => {
@@ -166,12 +197,10 @@ describe("SignUp should send email", () => {
 
   it("should send an email with activation link", async () => {
     await postReqValidUser();
-    const lastMail = nodemailerStub.interactsWithMail.lastMail();
-    expect(typeof lastMail.to).toBe("object");
-    expect(lastMail.to).toContain(user.email);
+    expect(lastMail).toContain(user.email);
     const users = await User.findAll();
     const savedUser = users[0];
-    expect(lastMail.content).toContain(savedUser.activationToken);
+    expect(lastMail).toContain(savedUser.activationToken);
   });
 
   it("should return 502 Bad Gateway error when sendign email fails", async () => {
